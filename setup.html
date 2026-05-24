@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stoa — Connect to Server</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --h-bg:          oklch(0.925 0.022 58);
+      --h-surface:     oklch(0.985 0.012 55);
+      --h-hairline:    oklch(0.770 0.026 50);
+      --h-ink:         oklch(0.235 0.018 45);
+      --h-ink-mute:    oklch(0.460 0.014 50);
+      --h-ink-faint:   oklch(0.595 0.014 52);
+      --h-accent:      oklch(0.545 0.120 245);
+      --h-accent-hi:   oklch(0.480 0.130 245);
+      --h-sans:        "DM Sans", system-ui, sans-serif;
+      --h-serif:       "Plus Jakarta Sans", "DM Sans", system-ui, sans-serif;
+      --h-err:         oklch(0.550 0.150 25);
+      --h-ok:          oklch(0.520 0.130 145);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --h-bg:          oklch(0.218 0.016 52);
+        --h-surface:     oklch(0.295 0.018 50);
+        --h-hairline:    oklch(0.420 0.016 48);
+        --h-ink:         oklch(0.925 0.014 70);
+        --h-ink-mute:    oklch(0.740 0.014 60);
+        --h-ink-faint:   oklch(0.585 0.012 55);
+        --h-accent:      oklch(0.620 0.100 245);
+        --h-accent-hi:   oklch(0.680 0.110 245);
+      }
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--h-bg);
+      color: var(--h-ink);
+      font-family: var(--h-sans);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .card {
+      background: var(--h-surface);
+      border: 1px solid var(--h-hairline);
+      border-radius: 16px;
+      padding: 40px 44px 44px;
+      width: 420px;
+      box-shadow: 0 4px 24px oklch(0 0 0 / 0.08);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+    }
+
+    .logo-text {
+      font-family: var(--h-serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--h-ink);
+      letter-spacing: -0.3px;
+    }
+
+    h1 {
+      font-family: var(--h-serif);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--h-ink);
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--h-ink-mute);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--h-ink-mute);
+      margin-bottom: 7px;
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    input[type="url"], input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--h-hairline);
+      border-radius: 8px;
+      background: var(--h-bg);
+      color: var(--h-ink);
+      font-family: var(--h-sans);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      user-select: text;
+    }
+
+    input[type="url"]:focus, input[type="text"]:focus {
+      border-color: var(--h-accent);
+    }
+
+    input::placeholder {
+      color: var(--h-ink-faint);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--h-ink-faint);
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .status {
+      font-size: 13px;
+      min-height: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status.checking { color: var(--h-ink-mute); }
+    .status.ok       { color: var(--h-ok); }
+    .status.err      { color: var(--h-err); }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--h-hairline);
+      border-top-color: var(--h-accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    button {
+      width: 100%;
+      padding: 11px 20px;
+      background: var(--h-accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--h-sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+
+    button:hover:not(:disabled) { background: var(--h-accent-hi); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .recent-servers {
+      margin-top: 24px;
+      border-top: 1px solid var(--h-hairline);
+      padding-top: 20px;
+    }
+
+    .recent-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--h-ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .recent-item:hover { background: var(--h-bg); }
+
+    .recent-item-url {
+      font-size: 13px;
+      color: var(--h-ink-mute);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .recent-item-arrow {
+      color: var(--h-ink-faint);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <img src="assets/stoa-icon.svg" class="logo-icon" alt="Stoa">
+      <span class="logo-text">Stoa</span>
+    </div>
+
+    <h1>Connect to your server</h1>
+    <p class="subtitle">Enter the URL of your Stoa server to get started.</p>
+
+    <label for="url-input">Server URL</label>
+    <div class="input-wrap">
+      <input
+        type="text"
+        id="url-input"
+        placeholder="https://stoa.example.com"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+    <p class="hint">Include the port if needed — e.g. <code style="font-size:11px">http://192.168.1.10:3000</code></p>
+
+    <div class="status" id="status"></div>
+
+    <button id="connect-btn" disabled>Connect</button>
+
+    <div class="recent-servers" id="recent-wrap" style="display:none">
+      <div class="recent-label">Recent</div>
+      <div id="recent-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('url-input');
+    const btn = document.getElementById('connect-btn');
+    const status = document.getElementById('status');
+    const recentWrap = document.getElementById('recent-wrap');
+    const recentList = document.getElementById('recent-list');
+
+    let checkTimer = null;
+
+    function normalizeUrl(raw) {
+      let u = raw.trim().replace(/\/$/, '');
+      if (u && !u.startsWith('http://') && !u.startsWith('https://')) {
+        u = 'http://' + u;
+      }
+      return u;
+    }
+
+    function setStatus(type, text, spinner) {
+      status.className = 'status ' + type;
+      status.innerHTML = spinner
+        ? `<div class="spinner"></div>${text}`
+        : text;
+    }
+
+    async function checkUrl(url) {
+      setStatus('checking', '', true);
+      btn.disabled = true;
+      try {
+        const result = await window.electronAPI.checkServer(url);
+        if (result.ok) {
+          setStatus('ok', '&#10003; Server reachable');
+          btn.disabled = false;
+        } else {
+          setStatus('err', result.error ? `Cannot connect: ${result.error}` : 'Server returned an error');
+          btn.disabled = true;
+        }
+      } catch (e) {
+        setStatus('err', 'Cannot connect to server');
+        btn.disabled = true;
+      }
+    }
+
+    input.addEventListener('input', () => {
+      const val = input.value.trim();
+      status.innerHTML = '';
+      status.className = 'status';
+      btn.disabled = true;
+
+      clearTimeout(checkTimer);
+      if (val.length < 3) return;
+
+      checkTimer = setTimeout(() => {
+        checkUrl(normalizeUrl(val));
+      }, 700);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !btn.disabled) connect();
+    });
+
+    async function connect() {
+      const url = normalizeUrl(input.value);
+      if (!url) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Connecting…';
+
+      const config = await window.electronAPI.getConfig();
+      const recent = config.recentServers || [];
+      if (!recent.includes(url)) recent.unshift(url);
+      if (recent.length > 5) recent.pop();
+
+      await window.electronAPI.saveConfig({ ...config, baseUrl: url, recentServers: recent });
+      await window.electronAPI.loadUrl(url);
+    }
+
+    btn.addEventListener('click', connect);
+
+    async function init() {
+      const config = await window.electronAPI.getConfig();
+      const recent = config.recentServers || [];
+
+      if (recent.length > 0) {
+        recentWrap.style.display = 'block';
+        recent.forEach(url => {
+          const item = document.createElement('div');
+          item.className = 'recent-item';
+          item.innerHTML = `<span class="recent-item-url">${url}</span><span class="recent-item-arrow">→</span>`;
+          item.addEventListener('click', () => {
+            input.value = url;
+            input.dispatchEvent(new Event('input'));
+          });
+          recentList.appendChild(item);
+        });
+      }
+
+      input.focus();
+    }
+
+    init();
+  </script>
+</body>
+</html>
