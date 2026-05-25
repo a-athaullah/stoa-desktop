@@ -96,4 +96,5 @@ GitHub Actions will build and upload installers for Windows, macOS, and Linux au
 
 ## License
 
-ISC
+[AGPL v3](LICENSE) — open source, commercial licensing available.
+Contact: ahmadathaullah@gmail.com

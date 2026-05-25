@@ -8,8 +8,8 @@
     "build": "electron-builder"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Ahmad Athaullah",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "electron": "^36.0.0",
     "electron-builder": "^25.0.0",
