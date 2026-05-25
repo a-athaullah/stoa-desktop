@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, net } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, net, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -42,8 +42,21 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => mainWindow.show());
 
   mainWindow.on('page-title-updated', (e) => {
-    // Keep "Stoa" in title
     e.preventDefault();
+  });
+
+  // Open external links in system browser, not in the app window
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    const config = readConfig();
+    if (config.baseUrl && !url.startsWith(config.baseUrl) && !url.startsWith('file://')) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
   });
 
   buildMenu();
